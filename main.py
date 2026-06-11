@@ -36,6 +36,7 @@ from actions.computer_settings import computer_settings
 from actions.screen_processor  import screen_process
 from actions.youtube_video     import youtube_video
 from actions.netflix_control import netflix_control
+from actions.media_coordinator import media_coordinator
 from actions.desktop           import desktop_control
 from actions.browser_control   import browser_control
 from actions.file_controller   import file_controller
@@ -499,6 +500,18 @@ TOOL_DECLARATIONS = [
         "parameters": {
             "type": "OBJECT",
             "properties": {},
+        }
+    },
+    {
+        "name": "media_coordinator",
+        "description": "Orchestrates media playing between Spotify, YouTube, and Netflix. Pauses conflicting sources when a new stream is requested to play.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "target": {"type": "STRING", "description": "The media target: spotify | youtube | netflix"},
+                "action": {"type": "STRING", "description": "play | pause"}
+            },
+            "required": ["target", "action"]
         }
     },
     {
@@ -1081,6 +1094,10 @@ class JarvisLive:
 
             elif name == "flight_finder":
                 r = await loop.run_in_executor(None, lambda: flight_finder(parameters=args, player=self.ui))
+                result = r or "Done."
+
+            elif name == "media_coordinator":
+                r = await loop.run_in_executor(None, lambda: media_coordinator(parameters=args, player=self.ui))
                 result = r or "Done."
 
             elif name == "window_control":
