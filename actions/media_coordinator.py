@@ -35,14 +35,22 @@ def media_coordinator(parameters: dict = None, player=None) -> str:
             computer_settings({"action": "spotify_pause"}, player=player)
             youtube_video({"action": "youtube_pause"}, player=player)
 
-            # User specifically asked for netflix to be brought to foreground
+            # Switch to the netflix tab in browser
+            from actions.browser_control import browser_control
+            browser_control({"action": "focus_tab", "url": "netflix.com"}, player=player)
+            time.sleep(0.5)
+
+            # Now the window title should contain Netflix, so we bring it to foreground
             focus_window("netflix")
+
             # Wait for focus to settle
             time.sleep(0.5)
 
             res = netflix_control({"action": "play"}, player=player)
-            # The prompt says: bring netflix tab to foreground and play it in full screen
-            netflix_control({"action": "fullscreen"}, player=player)
+
+            # The prompt says: bring netflix tab to foreground and play it in full screen via f11
+            computer_settings({"action": "press_key", "value": "f11"}, player=player)
+
             return res
 
         else:

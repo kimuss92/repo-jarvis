@@ -76,20 +76,10 @@ def _resume_spotify(delay: float = 1.5) -> None:
     """Force Spotify to start playing after launch or focus."""
     time.sleep(delay)
     try:
-        import keyboard
-        # Envoyer deux fois : la première réveille, la seconde joue
-        keyboard.send("play/pause media")
-        time.sleep(0.3)
-        keyboard.send("play/pause media")
-    except ImportError:
-        # Fallback via computer_settings
-        try:
-            from actions.computer_settings import computer_settings
-            computer_settings({"action": "spotify_play"})
-            time.sleep(0.3)
-            computer_settings({"action": "spotify_play"})
-        except Exception as e:
-            print(f"[open_app] Could not resume Spotify: {e}")
+        from actions.media_coordinator import media_coordinator
+        media_coordinator({"target": "spotify", "action": "play"})
+    except Exception as e:
+        print(f"[open_app] Could not resume Spotify: {e}")
 
 
 def open_app(parameters=None, response=None, player=None, session_memory=None) -> str:
