@@ -1372,7 +1372,8 @@ def spotify_play():
         # If title is exactly "Spotify", it means music is currently paused or stopped.
         if title == "Spotify":
             import win32con
-            win32gui.PostMessage(hwnd, win32con.WM_COMMAND, 114, 0)
+            # Try WM_APPCOMMAND (0x0319) with APPCOMMAND_MEDIA_PLAY_PAUSE (14)
+            win32gui.SendMessage(hwnd, 0x0319, 0, 14 << 16)
             return "Spotify music playback initiated in the background, sir."
         else:
             return "Spotify is already playing active audio streams, sir."
@@ -1389,7 +1390,7 @@ def spotify_pause():
         # If title contains a hyphen, it means a track title is actively scaling the title bar.
         if " - " in title or title != "Spotify":
             import win32con
-            win32gui.PostMessage(hwnd, win32con.WM_COMMAND, 114, 0)
+            win32gui.SendMessage(hwnd, 0x0319, 0, 14 << 16)
             return "Spotify music stream paused cleanly in the background, sir."
         else:
             return "Spotify is already in a paused state, sir."
