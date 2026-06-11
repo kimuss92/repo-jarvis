@@ -22,12 +22,12 @@ def _norm(s: str | None) -> str:
 
 def _media_target_from_text(text: str) -> str | None:
     t = _norm(text)
-    if "spotify" in t or "music" in t or "song" in t or "track" in t:
-        return "spotify"
     if "youtube" in t or "video" in t or "clip" in t:
         return "youtube"
     if "netflix" in t or "movie" in t or "show" in t or "series" in t:
         return "netflix"
+    if "spotify" in t or "music" in t or "song" in t or "track" in t:
+        return "spotify"
     return None
 
 
@@ -42,27 +42,17 @@ def route_tool_call(tool: str, parameters: dict | None, user_text: str = "") -> 
     state = load_state()
 
     # Resolve bare play/pause using explicit text first, then intent memory, then active/running context.
-    if tool in ("computer_settings", "youtube_video", "netflix_control") and action in ("play", "pause", "resume", "stop", "play_pause", "toggle_playback", ""):
-        target = target or state.get("last_media_app")
-        active_title = get_active_title("").lower()
+    if tool in ("computer_settings", "youtube_video", "netflix_control", "media_coordinator") and action in ("play", "pause", "resume", "stop", "play_pause", "toggle_playback", ""):
 
+        # If user didn't mention target, default to spotify automatically as per user preference
         if not target:
-            if "youtube" in active_title:
-                target = "youtube"
-            elif "netflix" in active_title:
-                target = "netflix"
-            elif is_running("spotify"):
-                target = "spotify"
+            target = "spotify"
 
-        if target == "youtube":
-            tool = "youtube_video"
-            params["action"] = "youtube_pause" if action in ("pause", "stop") else "youtube_resume"
-        elif target == "netflix":
-            tool = "netflix_control"
-            params["action"] = "pause" if action in ("pause", "stop") else "play"
-        elif target == "spotify":
-            tool = "computer_settings"
-            params["action"] = "spotify_pause" if action in ("pause", "stop") else "spotify_play"
+        tool = "media_coordinator"
+        params = {
+            "target": target,
+            "action": "pause" if action in ("pause", "stop") else "play"
+        }
 
     # "close this" / "minimize this" get active title if title missing.
     if tool == "window_control" and params.get("action") in ("close", "minimize", "maximize", "restore", "focus"):
