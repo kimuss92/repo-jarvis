@@ -178,23 +178,24 @@ def close_window(title_fragment: str) -> str:
         if any(kw in title_fragment.lower() for kw in protected_keywords):
             return "Sir, I am blocked from closing our primary terminal interface window."
 
-        # Special kill for spotify to bypass tray minimization
-        if "spotify" in title_fragment.lower() and sys.platform == "win32":
-            import os
-            os.system("taskkill /F /IM spotify.exe >nul 2>&1")
-            return "Spotify has been completely closed, sir."
-
         target = find_window_by_master_spec(title_fragment)
         if target is None and _PWC:
             for w in pwc.getAllWindows():
                 if title_fragment.lower() in w.title.lower():
                     target = w
                     break
+
         if target is None:
             # Let the user know specifically for spotify if they try to close it when it's not open
             if "spotify" in title_fragment.lower():
                 return "There is no Spotify open right now, sir."
             return f"No window found with '{title_fragment}' in title."
+
+        # Special kill for spotify to bypass tray minimization
+        if "spotify" in title_fragment.lower() and sys.platform == "win32":
+            import os
+            os.system("taskkill /F /IM spotify.exe >nul 2>&1")
+            return "Spotify has been completely closed, sir."
         
         if _WIN32_GUI:
             win32gui.PostMessage(target.getHandle(), win32con.WM_CLOSE, 0, 0)
