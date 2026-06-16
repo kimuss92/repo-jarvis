@@ -1,2 +1,6 @@
 config/api_keys.json
 memory/long_term.json
+.cache/
+.vscode/
+__pycache__/
+*.pyc
